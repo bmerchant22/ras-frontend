@@ -1,7 +1,7 @@
 import axios, { AxiosResponse } from "axios";
 
 import { NoticeParams } from "@callbacks/admin/rc/notice";
-import { errorNotification } from "@callbacks/notifcation";
+import { errorNotification, successNotification } from "@callbacks/notifcation";
 
 import {
   ErrorType,
@@ -31,6 +31,19 @@ const NoticeSReq = {
 
         return [] as NoticeParams[];
       }),
+  browserNotification: (token: string, rcid: string, subscription: object) =>
+    instance
+      .post(`/rc/${rcid}/notice/subscribe`, subscription, setConfig(token))
+      .then(() => {
+        successNotification("Notification sent successfully", "");
+        return true;
+      })
+      .catch((err: ErrorType) => {
+        errorNotification(
+          "Error in sending notification",
+          err?.response?.data?.error || err.message
+        );
+      })
 };
 
 export default NoticeSReq;

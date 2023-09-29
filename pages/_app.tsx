@@ -33,6 +33,12 @@ function MyApp({ Component, pageProps }: AppProps) {
       router.events.on("routeChangeError", handleStop);
     }
 
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker
+        .register('/service-worker.js')
+        .then((registration) => console.log('scope is: ', registration.scope));
+    }
+
     return () => {
       router.events.off("routeChangeStart", handleStart);
       router.events.off("routeChangeComplete", handleStop);

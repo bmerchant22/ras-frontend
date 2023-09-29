@@ -1,4 +1,4 @@
-import { Modal, Stack } from "@mui/material";
+import { Modal, Stack, Switch, Typography } from "@mui/material";
 import { GridColDef } from "@mui/x-data-grid";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
@@ -37,6 +37,8 @@ function Notices() {
   const rid = (rcid || "").toString();
   const { token } = useStore();
   const [openView, setOpenView] = useState(false);
+  const [isSubscribed, setIsSubscribed] = useState(false);
+  const publicVapidKey = 'BMrfFtMtL9IWl9vchDbbbYzJlbQwplyZ_fbv8Pei8gPNna_Dr1O-Ng7U7fy0LLqz5RKIxEytTIzyk6TLrcKbN30';
   const handleOpenView = () => {
     setOpenView(true);
   };
@@ -67,6 +69,47 @@ function Notices() {
     fetch();
   }, [rid, token]);
 
+  const urlBase64ToUint8Array = (base64String: string) => {
+    const padding = '='.repeat((4 - base64String.length % 4) % 4);
+    const base64 = (base64String + padding)
+      .replace(/\-/g, '+')
+      .replace(/_/g, '/');
+
+    const rawData = window.atob(base64);
+    const outputArray = new Uint8Array(rawData.length);
+
+    for (let i = 0; i < rawData.length; ++i) {
+      outputArray[i] = rawData.charCodeAt(i);
+    }
+    return outputArray;
+  };
+
+  const handleSubscribe = async () => {
+    setIsSubscribed(!isSubscribed)
+    try {
+      console.log(navigator.serviceWorker.ready)
+      const registration = await navigator.serviceWorker.ready; 
+      const subscription = await registration.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlBase64ToUint8Array(publicVapidKey),
+      });
+      console.log(subscription)
+  
+      await NoticeSReq.browserNotification(token, rid, subscription);
+      console.log(subscription)
+  
+      // Show a success notification
+      // showNotification({
+      //   message: "Subscription successful!",
+      //   variant: "success", // Use "variant" instead of "type"
+      // });
+    } catch (error) {
+      console.error("Error subscribing:", error);
+      // Show an error notification
+      // showNotification("Error subscribing to notifications", "error");
+    }
+  };
+
   return (
     <div>
       <Meta title="RC - Notices" />
@@ -77,6 +120,15 @@ function Notices() {
           justifyContent="space-between"
         >
           <h2>Notices</h2>
+          <div style={{ display: "flex", alignItems: "center" }}>
+            <h3>Notifications</h3>
+            <Switch
+              checked={isSubscribed}
+              onChange={handleSubscribe}
+              name="notificationSwitch"
+              color="primary"
+          />
+          </div>
         </Stack>
 
         <DataGrid

@@ -1,6 +1,6 @@
 /* eslint-disable jsx-a11y/img-redundant-alt */
 /* eslint-disable @next/next/no-img-element */
-import { Card, Grid, Stack, TextField } from "@mui/material";
+import { Card, Grid, Stack, Switch, TextField } from "@mui/material";
 import Button from "@mui/material/Button";
 import React, { useEffect, useState } from "react";
 
@@ -8,6 +8,9 @@ import Meta from "@components/Meta";
 import studentRequest, { Student } from "@callbacks/student/student";
 import useStore from "@store/store";
 import { getDepartment, getProgram } from "@components/Parser/parser";
+import { useRouter } from "next/router";
+import NoticeSReq from "@callbacks/student/rc/noticeS";
+import { showNotification } from "@mantine/notifications";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const info: { field: string; value: string; disabled: boolean; api_id: any }[] =
@@ -211,6 +214,7 @@ const info: { field: string; value: string; disabled: boolean; api_id: any }[] =
       api_id: "disability",
     },
   ];
+
 function Profile() {
   const [StudentData, setStudentData] = useState<Student>({ ID: 0 } as Student);
   const { token } = useStore();
